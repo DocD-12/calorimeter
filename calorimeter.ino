@@ -135,7 +135,7 @@ int stable() {
   unsigned long last_time = millis();
   unsigned long led_time = millis();
   const unsigned long led_limit = 500UL;
-  float last_value;
+  float last_value = -273;
 
   digitalWrite(LED_YELLOW, HIGH);
 
@@ -143,12 +143,8 @@ int stable() {
     sensors.requestTemperatures();
     value = printTemperature(insideThermometer);
 
-    display.clearDisplay();
-    display.setCursor(10,28); 
-    display.println(value);  
-    display.display();
+    if (last_value == - 273) last_value = value;
 
-    Serial.println(value);
     if (value != last_value) {
       last_value = value;
       last_time = millis();
@@ -159,6 +155,16 @@ int stable() {
       digitalWrite(LED_YELLOW, !digitalRead(LED_YELLOW));
       led_time = millis();
     }
+
+    display.clearDisplay();
+    display.setCursor(10,28); 
+    display.println(value);  
+    display.display();
+
+    Serial.print(value);
+    Serial.print("°C :: ");
+    Serial.print(millis() - last_time);
+    Serial.println("ms");
   }
 
   display.clearDisplay();
@@ -167,6 +173,9 @@ int stable() {
   display.setCursor(4,30);             
   display.println(value);
   display.display();
+
+  Serial.print("Stable value: ");
+  Serial.println(value);
 
   digitalWrite(LED_YELLOW, HIGH);
   while (digitalRead(BTN_READY)) {
@@ -194,14 +203,15 @@ int measure() {
   unsigned long last_time = millis();
   unsigned long led_time = millis();
   const unsigned long led_limit = 500UL;
-  float last_value;
+  float last_value = -273;
 
   digitalWrite(LED_GREEN, HIGH);
 
   while (1) {
     sensors.requestTemperatures();
     value = printTemperature(insideThermometer);
-
+    if (last_value == -273) last_value = value;
+    
     display.clearDisplay();
     display.setCursor(10,28); 
     display.println(value);  
@@ -251,15 +261,25 @@ int measure() {
 
 void final(int val_st, int val_fin) {
   Serial.print("Stable value: ");
-  Serial.println((float) val_st);
-  Serial.print("Final value: ");
-  Serial.println((float) val_fin);
+  Serial.print((float) val_st);
+  Serial.println(" °C");
+
+  Serial.print("Final value:  ");
+  Serial.print((float) val_fin);
+  Serial.println(" °C");
+
+  Serial.println();
+  Serial.println();
+  Serial.println();
+
+  delay(1000);
 
   while (digitalRead(BTN_READY)) {
 
   }
 
   delay(1000);
+
   resetFunc();
 }
 /*
@@ -279,7 +299,10 @@ void loop(void)
   op_time = (millis() - op_time);
 
   Serial.print("Time: ");
-  Serial.println(op_time / 1000);
+  Serial.print(op_time / 1000);
+  Serial.print(".");
+  Serial.print(op_time % 1000);
+  Serial.println(" seconds.");
 
   final(v_stable, v_final);
 }
