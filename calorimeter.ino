@@ -164,7 +164,7 @@ int stable() {
     Serial.print(value);
     Serial.print("°C :: ");
     Serial.print(millis() - last_time);
-    Serial.println("ms");
+    Serial.println();
   }
 
   display.clearDisplay();
@@ -211,7 +211,7 @@ int measure() {
     sensors.requestTemperatures();
     value = printTemperature(insideThermometer);
     if (last_value == -273) last_value = value;
-    
+
     display.clearDisplay();
     display.setCursor(10,28); 
     display.println(value);  
